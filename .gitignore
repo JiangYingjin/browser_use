@@ -1,0 +1,9 @@
+# 虚拟环境与依赖
+.venv/
+.env
+*.pyc
+__pycache__/
+.python-version
+
+# uv
+.uv/

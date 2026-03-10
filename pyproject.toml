@@ -1,0 +1,10 @@
+[project]
+name = "browser_use"
+version = "0.1.0"
+description = "Browser Use 开源库试用，headless 可在 server 运行"
+requires-python = ">=3.12"
+dependencies = [
+    "browser-use",
+    "playwright",
+    "python-dotenv",
+]
