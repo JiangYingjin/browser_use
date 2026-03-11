@@ -3,14 +3,14 @@
 import asyncio
 import sys
 import time
-import os
 import json
-from datetime import datetime
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
 
 import compat  # noqa: E402
+from utils import make_runid
 from browser_use import Agent, BrowserSession, ChatOpenAI
 from config import (
     CDP_URL,
@@ -21,7 +21,7 @@ from config import (
 from cdp import ensure_cdp_ready
 
 
-async def run_one(task: str) -> bool:
+async def run_one(task: str) -> str | None:
     if ensure_cdp_ready():
         print(f"等待 5s 让浏览器稳定 ...", file=sys.stderr)
         time.sleep(5)
@@ -33,27 +33,29 @@ async def run_one(task: str) -> bool:
         base_url=OPENAI_BASE_URL,
     )
     agent = Agent(task=task, llm=llm, browser_session=browser_session)
+
     history = await agent.run()
 
-    # 创建输出目录
-    os.makedirs("outputs/history", exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    out_path = f"outputs/history/{timestamp}.json"
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(history.model_dump(), f, ensure_ascii=False, indent=2)
-    print(f"History saved to {out_path}")
+    _, run_dir = make_runid()
+    d = Path(run_dir)
+    d.mkdir(parents=True, exist_ok=True)
+
+    history_path = d / "history.json"
+    history_path.write_text(
+        json.dumps(history.model_dump(), ensure_ascii=False, indent=2),
+    )
 
     last = history.history[-1] if history.history else None
-    ok = bool(last and last.result and getattr(last.result[0], "success", False))
-    if last and last.result:
-        extracted_content = getattr(last.result[0], "extracted_content", None) or str(
-            last
-        )
-        # print("Result:", extracted_content)
-        os.makedirs("outputs/results", exist_ok=True)
-        with open(f"outputs/results/{timestamp}.txt", "w", encoding="utf-8") as f:
-            f.write(extracted_content)
-    return extracted_content
+    result = (
+        getattr(last.result[0], "extracted_content", None)
+        if last and last.result
+        else None
+    )
+    if result:
+        result_path = d / "result.txt"
+        result_path.write_text(result)
+        print(f"Result saved to {result_path}")
+    return result
 
 
 async def main():
