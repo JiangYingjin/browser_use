@@ -29,6 +29,11 @@ def _norm(item: dict):
         ex = item["extract"]
         if "goal" in ex and "query" not in ex:
             ex["query"] = ex.pop("goal")
+    # EvaluateAction 要求 code，部分模型（如 jyj.cx/flash:or）返回 javascript → 映射为 code
+    if "evaluate" in item and isinstance(item.get("evaluate"), dict):
+        ev = item["evaluate"]
+        if "javascript" in ev and "code" not in ev:
+            ev["code"] = ev.pop("javascript")
 
 
 def _validate(cls, s: str):
