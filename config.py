@@ -1,9 +1,16 @@
-"""配置与任务列表。"""
+"""配置（写死）。"""
+
 import os
 
-DEFAULT_START_CHROMIUM_SCRIPT = os.path.expanduser("~/.vnc/start-chromium.sh")
+START_CHROMIUM_SCRIPT = os.path.expanduser("~/.vnc/start-chromium.sh")
 CDP_READY_TIMEOUT = 45
-CDP_POST_START_DELAY = int(os.getenv("CDP_POST_START_DELAY", "5"))
+CDP_POST_START_DELAY = 5
+CDP_URL = "http://127.0.0.1:9222"
+OPENAI_BASE_URL = "https://dj.jyj.cx/v1"
+OPENAI_API_KEY = "sk-jiangyj"
+BROWSER_USE_LLM_MODEL = "jyj.cx/flash:or"
+CASE_INDEX = 0
+RUN_ALL = False
 
 TASKS = [
     "Open https://example.com and return the page title.",
