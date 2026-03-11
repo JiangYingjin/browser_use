@@ -4,6 +4,7 @@
 *.pyc
 __pycache__/
 .python-version
+outputs/
 
 # uv
 .uv/

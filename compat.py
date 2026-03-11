@@ -24,6 +24,11 @@ def _norm(item: dict):
         item["click"] = {"index": item["click"]}
     if "wait" in item and isinstance(item.get("wait"), dict) and "time" in item["wait"]:
         item["wait"]["seconds"] = item["wait"].pop("time")
+    # ExtractAction 要求 query，部分模型返回 goal → 映射为 query
+    if "extract" in item and isinstance(item.get("extract"), dict):
+        ex = item["extract"]
+        if "goal" in ex and "query" not in ex:
+            ex["query"] = ex.pop("goal")
 
 
 def _validate(cls, s: str):
