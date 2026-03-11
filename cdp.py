@@ -21,7 +21,7 @@ def _ready(host: str, port: int) -> bool:
 
 def ensure_cdp_ready(cdp_url: str = CDP_URL) -> bool:
     parsed = urlparse(cdp_url)
-    host, port = parsed.hostname or "127.0.0.1", parsed.port or 9222
+    host, port = parsed.hostname, parsed.port
     if _ready(host, port):
         return False
     if os.path.isfile(START_CHROMIUM_SCRIPT):
