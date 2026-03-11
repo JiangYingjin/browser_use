@@ -24,16 +24,27 @@ def _norm(item: dict):
         item["click"] = {"index": item["click"]}
     if "wait" in item and isinstance(item.get("wait"), dict) and "time" in item["wait"]:
         item["wait"]["seconds"] = item["wait"].pop("time")
-    # ExtractAction 要求 query，部分模型返回 goal → 映射为 query
+    # ExtractAction 要求 query，部分模型返回 goal 或 instruction → 映射为 query
     if "extract" in item and isinstance(item.get("extract"), dict):
         ex = item["extract"]
-        if "goal" in ex and "query" not in ex:
-            ex["query"] = ex.pop("goal")
-    # EvaluateAction 要求 code，部分模型（如 jyj.cx/flash:or）返回 javascript → 映射为 code
+        if "query" not in ex:
+            if "goal" in ex:
+                ex["query"] = ex.pop("goal")
+            elif "instruction" in ex:
+                ex["query"] = ex.pop("instruction")
+    # EvaluateAction 要求 code，部分模型返回 script 或 javascript → 映射为 code
     if "evaluate" in item and isinstance(item.get("evaluate"), dict):
         ev = item["evaluate"]
-        if "javascript" in ev and "code" not in ev:
-            ev["code"] = ev.pop("javascript")
+        if "code" not in ev:
+            if "script" in ev:
+                ev["code"] = ev.pop("script")
+            elif "javascript" in ev:
+                ev["code"] = ev.pop("javascript")
+    # SearchPageAction 要求 pattern，部分模型返回 query → 映射为 pattern
+    if "search_page" in item and isinstance(item.get("search_page"), dict):
+        sp = item["search_page"]
+        if "pattern" not in sp and "query" in sp:
+            sp["pattern"] = sp.pop("query")
 
 
 def _validate(cls, s: str):

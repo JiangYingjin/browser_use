@@ -12,6 +12,7 @@ load_dotenv()
 import compat  # noqa: E402
 from utils import make_runid
 from browser_use import Agent, BrowserSession, ChatOpenAI
+from tools_with_region_html import ToolsWithRegionHtml
 from config import (
     CDP_URL,
     OPENAI_API_KEY,
@@ -32,7 +33,12 @@ async def run_one(task: str) -> str | None:
         api_key=OPENAI_API_KEY,
         base_url=OPENAI_BASE_URL,
     )
-    agent = Agent(task=task, llm=llm, browser_session=browser_session)
+    agent = Agent(
+        task=task,
+        llm=llm,
+        browser_session=browser_session,
+        tools=ToolsWithRegionHtml(),
+    )
 
     history = await agent.run()
 
